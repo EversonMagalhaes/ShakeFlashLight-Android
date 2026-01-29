@@ -1,20 +1,28 @@
 package com.example.shakeflashlight
 
+import android.hardware.camera2.CameraManager
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
+
+    // O lazy garante que a variável só seja inicializada quando for usada pela primeira vez
+    private val cameraManager by lazy {
+        getSystemService(CAMERA_SERVICE) as CameraManager
+    }
+
+    // ID da câmera que possui o flash (geralmente a "0")
+    private var cameraId: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        // Inicializa o ID da câmera
+        try {
+            cameraId = cameraManager.cameraIdList[0]
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }
