@@ -66,6 +66,27 @@ class MainActivity : AppCompatActivity() {
                 shakeVibrate()
             }
         }
+
+        val switchService = findViewById<android.widget.Switch>(R.id.switchService)
+        val seekBar = findViewById<android.widget.SeekBar>(R.id.seekBarSensitivity)
+        val labelSensitivity = findViewById<android.widget.TextView>(R.id.labelSensitivity)
+
+// Lógica para o SeekBar (Sensibilidade de 40 a 70)
+        seekBar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+                val realValue = 40.0f + progress
+                labelSensitivity.text = "Sensibilidade: $realValue"
+
+                // Aqui atualizamos o detector em tempo real!
+                // (Precisaremos ajustar o ShakeDetector para aceitar mudanças de threshold)
+                shakeDetector.threshold = realValue
+            }
+
+            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {}
+        })
+        shakeDetector.threshold = 60.0f
+
     }
 
     private fun toggleFlash(status: Boolean) {

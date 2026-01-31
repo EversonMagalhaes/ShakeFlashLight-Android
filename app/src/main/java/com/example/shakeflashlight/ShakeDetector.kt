@@ -8,7 +8,7 @@ import android.hardware.SensorEventListener
 class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
 
     // Mantendo o seu valor de 50.0f
-    private val threshold = 70.0f
+    var threshold: Float = 60.0f
 
     override fun onSensorChanged(event: SensorEvent?) {
         // 1. Verificamos se o evento não é nulo e se é do acelerômetro
