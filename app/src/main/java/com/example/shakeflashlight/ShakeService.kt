@@ -110,15 +110,24 @@ class ShakeService : Service() {
 
         createNotificationChannel()
 
+//        val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
+//            .setSmallIcon(R.mipmap.ic_launcher)
+//            .setContentTitle("Lanterna Rápida Ativa")
+//            .setContentText("O sensor está monitorando movimentos")
+//            .setPriority(NotificationCompat.PRIORITY_HIGH) // Alta prioridade
+//            .setOngoing(true)
+//            .setSilent(false) // Garante que não seja uma notificação "muda"
+//            // Esta linha abaixo é crucial para Android 12+ (Samsung)
+//            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+//            .build()
+
         val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Lanterna Rápida Ativa")
             .setContentText("O sensor está monitorando movimentos")
-            .setPriority(NotificationCompat.PRIORITY_HIGH) // Alta prioridade
+            .setPriority(NotificationCompat.PRIORITY_LOW) // Mude para LOW para ser discreto ao atualizar
             .setOngoing(true)
-            .setSilent(false) // Garante que não seja uma notificação "muda"
-            // Esta linha abaixo é crucial para Android 12+ (Samsung)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setOnlyAlertOnce(true) // A MÁGICA ESTÁ AQUI: Só alerta na primeira vez!
             .build()
 
         try {
