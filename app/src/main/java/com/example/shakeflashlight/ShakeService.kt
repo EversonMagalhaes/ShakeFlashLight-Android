@@ -45,21 +45,48 @@ class ShakeService : Service() {
 
         }
     }
+//    private fun shakeVibrate() {
+//        val pattern = longArrayOf(0, 100, 50, 200) // Espera 0ms, vibra 100ms, para 50ms, vibra 100ms
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+//            val vibrator = vibratorManager.defaultVibrator
+//            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1)) // -1 significa "não repetir"
+//        } else {
+//            @Suppress("DEPRECATION")
+//            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+//            } else {
+//                // Para celulares muito antigos
+//                vibrator.vibrate(pattern, -1)
+//            }
+//        }
+//    }
+
     private fun shakeVibrate() {
-        val pattern = longArrayOf(0, 100, 50, 200) // Espera 0ms, vibra 100ms, para 50ms, vibra 100ms
+        val pattern = longArrayOf(0, 100, 50, 200)
+
+        // Criamos um "atributo" dizendo que isso é um alerta de hardware
+        val audioAttributes = android.media.AudioAttributes.Builder()
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             val vibrator = vibratorManager.defaultVibrator
-            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1)) // -1 significa "não repetir"
+            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1), audioAttributes)
         } else {
             @Suppress("DEPRECATION")
             val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
-            } else {
-                // Para celulares muito antigos
-                vibrator.vibrate(pattern, -1)
+            if (vibrator.hasVibrator()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    // Passando o audioAttributes aqui é o segredo para o Samsung Android 11
+                    vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1), audioAttributes)
+                } else {
+                    vibrator.vibrate(pattern, -1)
+                }
             }
         }
     }
