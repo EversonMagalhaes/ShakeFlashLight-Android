@@ -83,8 +83,9 @@ class ShakeService : Service() {
 
         createNotificationChannel()
 
-        val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL") // USE O NOVO ID AQUI
-            .setSmallIcon(R.mipmap.ic_launcher)
+        // Monte a notificação PRIMEIRO
+        val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
+            .setSmallIcon(R.mipmap.ic_launcher) // Ícone do seu app
             .setContentTitle("Lanterna Rápida Ativa")
             .setContentText("O sensor está monitorando movimentos")
             .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -92,14 +93,14 @@ class ShakeService : Service() {
             .setOngoing(true)
             .build()
 
-        // AJUSTE AQUI: Para Android 14+ (API 34), precisamos passar o tipo de serviço
+        // Use o ID 1001 em AMBOS para não dar erro de conflito
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             startForeground(1001, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA)
         } else {
-            startForeground(1, notification)
+            startForeground(1001, notification) // Mudei de 1 para 1001
         }
 
-        // ... resto do código do detector ...
+        // O resto do seu código (shakeDetector...) está PERFEITO!
         shakeDetector = ShakeDetector {
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastClickTime > SHAKE_DELAY) {
