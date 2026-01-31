@@ -8,9 +8,13 @@
 <!--    <uses-feature android:name="android.hardware.camera.flash" />-->
     <uses-feature android:name="android.hardware.camera.flash" android:required="true" />
     <uses-permission android:name="android.permission.VIBRATE" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
+
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,6 +23,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ShakeFlashlight">
+        <service
+            android:name=".ShakeService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="camera" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -28,6 +37,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
     </application>
 
 </manifest>
