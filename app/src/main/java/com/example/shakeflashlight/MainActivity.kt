@@ -5,6 +5,7 @@ import android.hardware.SensorManager
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +26,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        Log.d("SHAKE_APP", "APP INICIOU E LOG ESTA FUNCIONANDO")
+
         try {
             cameraId = cameraManager.cameraIdList[0]
         } catch (e: Exception) {
@@ -38,13 +41,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toggleFlashlight() {
+        // Usando Log.d (Tag, Mensagem)
+        Log.d("SHAKE_APP", "Chacoalhada detectada!")
+
         try {
             cameraId?.let { id ->
                 isFlashOn = !isFlashOn
                 cameraManager.setTorchMode(id, isFlashOn)
+                Log.d("SHAKE_APP", "Lanterna status: $isFlashOn")
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SHAKE_APP", "Erro: ${e.message}")
         }
     }
 
