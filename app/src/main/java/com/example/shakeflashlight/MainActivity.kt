@@ -13,26 +13,55 @@ class MainActivity : AppCompatActivity() {
 
     private val PREFS_NAME = "ShakePrefs"
     private val KEY_SENSITIVITY = "sensitivity_value"
+    private val KEY_SERVICE_ACTIVE = "service_active" // Nova chave!
+
+    private fun checkPermissions() {
+        val permissions = mutableListOf<String>()
+
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            permissions.add(android.Manifest.permission.CAMERA)
+        }
+
+        // Corrigido: Apenas adiciona à lista, o requestPermissions final cuida de tudo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        if (permissions.isNotEmpty()) {
+            requestPermissions(permissions.toTypedArray(), 100)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        checkPermissions()
 
         val switchService = findViewById<Switch>(R.id.switchService)
         val seekBar = findViewById<SeekBar>(R.id.seekBarSensitivity)
         val labelSensitivity = findViewById<TextView>(R.id.labelSensitivity)
         val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-        // 1. CARREGAR PREFERÊNCIAS
+        // 1. CARREGAR PREFERÊNCIAS (Sensibilidade e Estado do Switch)
         val savedProgress = sharedPrefs.getInt(KEY_SENSITIVITY, 20)
-        seekBar.progress = savedProgress
-        val initialValue = 40.0f + savedProgress
-        labelSensitivity.text = "Sensibilidade: $initialValue"
+        val isServiceActive = sharedPrefs.getBoolean(KEY_SERVICE_ACTIVE, false)
 
-        // 2. LÓGICA DO SWITCH (INICIAR/PARAR MOTOR)
+        seekBar.progress = savedProgress
+        val currentThreshold = 40.0f + savedProgress
+        labelSensitivity.text = "Sensibilidade: $currentThreshold"
+
+        // Aqui está o pulo do gato: define o estado visual do botão
+        switchService.isChecked = isServiceActive
+
+        // 2. LÓGICA DO SWITCH
         switchService.setOnCheckedChangeListener { _, isChecked ->
+            // SALVA o estado para o app lembrar depois
+            sharedPrefs.edit().putBoolean(KEY_SERVICE_ACTIVE, isChecked).apply()
+
             val serviceIntent = Intent(this, ShakeService::class.java)
-            // Passamos o valor atual da sensibilidade para o serviço
             serviceIntent.putExtra("threshold", 40.0f + seekBar.progress)
 
             if (isChecked) {
@@ -49,11 +78,7 @@ class MainActivity : AppCompatActivity() {
         // 3. LÓGICA DO SEEKBAR
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val realValue = 40.0f + progress.toFloat()
-                labelSensitivity.text = "Sensibilidade: $realValue"
-
-                // Se o serviço estiver rodando, opcionalmente podemos enviar o novo valor
-                // Mas por enquanto, vamos focar em salvar para o próximo início
+                labelSensitivity.text = "Sensibilidade: ${40.0f + progress}"
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -62,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                 val progress = seekBar?.progress ?: 20
                 sharedPrefs.edit().putInt(KEY_SENSITIVITY, progress).apply()
 
-                // Dica: Se o Switch estiver ligado, reinicie o serviço para aplicar a nova sensibilidade
+                // Se estiver ligado, reinicia o serviço para atualizar a sensibilidade
                 if (switchService.isChecked) {
                     val serviceIntent = Intent(this@MainActivity, ShakeService::class.java)
                     serviceIntent.putExtra("threshold", 40.0f + progress)

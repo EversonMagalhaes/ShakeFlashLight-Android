@@ -23,6 +23,28 @@ class ShakeService : Service() {
     private var lastClickTime: Long = 0
     private val SHAKE_DELAY = 500
 
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Mudei de "SHAKE_V3_CHANNEL" para "SHAKE_FINAL_CHANNEL"
+            val channelId = "SHAKE_FINAL_CHANNEL"
+            val channelName = "Monitor de Chacoalho"
+            val manager = getSystemService(NotificationManager::class.java)
+
+            val serviceChannel = NotificationChannel(
+                channelId,
+                channelName,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Essencial para a lanterna funcionar"
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 100, 50, 200) // Tenta forçar o padrão de vibração no canal
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            manager.createNotificationChannel(serviceChannel)
+
+        }
+    }
     private fun shakeVibrate() {
         val pattern = longArrayOf(0, 100, 50, 200) // Espera 0ms, vibra 100ms, para 50ms, vibra 100ms
 
@@ -59,25 +81,31 @@ class ShakeService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val threshold = intent?.getFloatExtra("threshold", 60.0f) ?: 60.0f
 
-        // 1. Criar Canal de Notificação (Obrigatório para Android 8+)
         createNotificationChannel()
-        val notification = NotificationCompat.Builder(this, "SHAKE_SERVICE_CHANNEL")
+
+        val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL") // USE O NOVO ID AQUI
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Lanterna Rápida Ativa")
-            .setContentText("Chacoalhe para ligar/desligar")
-            .setSmallIcon(android.R.drawable.ic_menu_compass) // Use um ícone temporário
+            .setContentText("O sensor está monitorando movimentos")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setOngoing(true)
             .build()
 
-        // 2. Transforma em Foreground Service (Não deixa o Android matar o app)
-        startForeground(1, notification)
+        // AJUSTE AQUI: Para Android 14+ (API 34), precisamos passar o tipo de serviço
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1001, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA)
+        } else {
+            startForeground(1, notification)
+        }
 
-        // 3. Inicia o Detector
+        // ... resto do código do detector ...
         shakeDetector = ShakeDetector {
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastClickTime > SHAKE_DELAY) {
                 lastClickTime = currentTime
                 isFlashOn = !isFlashOn
                 toggleFlash(isFlashOn)
-                // Chame o seu shakeVibrate() aqui também se quiser!
                 shakeVibrate()
             }
         }
@@ -96,27 +124,16 @@ class ShakeService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        // Solta o WakeLock quando o usuário desligar o Switch (stopService)
+        // 1. Primeiro limpamos as nossas coisas
         if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
-        super.onDestroy()
         sensorManager.unregisterListener(shakeDetector)
-        toggleFlash(false) // Garante que apaga ao desligar o serviço
+        toggleFlash(false)
+
+        // 2. POR ÚLTIMO e UMA ÚNICA VEZ chamamos o super
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                "SHAKE_SERVICE_CHANNEL",
-                "Serviço de Lanterna",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
-        }
-    }
 }
