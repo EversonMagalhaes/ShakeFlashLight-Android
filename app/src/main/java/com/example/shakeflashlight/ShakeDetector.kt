@@ -3,7 +3,7 @@ package com.example.shakeflashlight
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.hardware.SensorManager
+//import android.hardware.SensorManager
 
 class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
 
