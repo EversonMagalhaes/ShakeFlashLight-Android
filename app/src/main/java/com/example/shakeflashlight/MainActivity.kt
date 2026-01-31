@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
     private var cameraId: String? = null
     private lateinit var shakeDetector: ShakeDetector
 
+    private val PREFS_NAME = "ShakePrefs"
+    private val KEY_SENSITIVITY = "sensitivity_value"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -72,18 +75,30 @@ class MainActivity : AppCompatActivity() {
         val labelSensitivity = findViewById<android.widget.TextView>(R.id.labelSensitivity)
 
 // Lógica para o SeekBar (Sensibilidade de 40 a 70)
+        val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+// 1. CARREGAR: Busca o valor salvo. Se não existir, usa 20 (que resulta em 60.0f)
+        val savedProgress = sharedPrefs.getInt(KEY_SENSITIVITY, 20)
+        seekBar.progress = savedProgress
+        val initialValue = 40.0f + savedProgress
+        labelSensitivity.text = "Sensibilidade: $initialValue"
+        shakeDetector.threshold = initialValue
+
+// 2. SALVAR: Atualiza o "caderninho" quando o usuário mexe na barra
         seekBar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
-                val realValue = 40.0f + progress
+                val realValue = 40.0f + progress.toFloat()
                 labelSensitivity.text = "Sensibilidade: $realValue"
-
-                // Aqui atualizamos o detector em tempo real!
-                // (Precisaremos ajustar o ShakeDetector para aceitar mudanças de threshold)
                 shakeDetector.threshold = realValue
             }
 
             override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
+                // Quando o usuário solta a barra, gravamos o valor permanentemente
+                val progress = seekBar?.progress ?: 20
+                sharedPrefs.edit().putInt(KEY_SENSITIVITY, progress).apply()
+            }
         })
         shakeDetector.threshold = 60.0f
 
