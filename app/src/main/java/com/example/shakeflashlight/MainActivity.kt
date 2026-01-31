@@ -5,12 +5,32 @@ import android.hardware.SensorManager
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
-//import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-//import androidx.constraintlayout.widget.ConstraintLayout
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 
 class MainActivity : AppCompatActivity() {
+    private fun shakeVibrate() {
+        val pattern = longArrayOf(0, 100, 50, 200) // Espera 0ms, vibra 100ms, para 50ms, vibra 100ms
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            val vibrator = vibratorManager.defaultVibrator
+            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1)) // -1 significa "não repetir"
+        } else {
+            @Suppress("DEPRECATION")
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            } else {
+                // Para celulares muito antigos
+                vibrator.vibrate(pattern, -1)
+            }
+        }
+    }
     private var isFlashOn = false
     private var lastClickTime: Long = 0
     private val SHAKE_DELAY = 1000 // 1 segundo de intervalo
@@ -43,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 lastClickTime = currentTime
                 isFlashOn = !isFlashOn
                 toggleFlash(isFlashOn)
+                shakeVibrate()
             }
         }
     }
