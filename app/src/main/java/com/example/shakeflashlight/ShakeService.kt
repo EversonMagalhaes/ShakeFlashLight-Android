@@ -110,22 +110,28 @@ class ShakeService : Service() {
 
         createNotificationChannel()
 
-        // Monte a notificação PRIMEIRO
         val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
-            .setSmallIcon(R.mipmap.ic_launcher) // Ícone do seu app
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Lanterna Rápida Ativa")
             .setContentText("O sensor está monitorando movimentos")
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setPriority(NotificationCompat.PRIORITY_HIGH) // Alta prioridade
             .setOngoing(true)
+            .setSilent(false) // Garante que não seja uma notificação "muda"
+            // Esta linha abaixo é crucial para Android 12+ (Samsung)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .build()
 
-        // Use o ID 1001 em AMBOS para não dar erro de conflito
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(1001, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA)
-        } else {
-            startForeground(1001, notification) // Mudei de 1 para 1001
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(1001, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA)
+            } else {
+                startForeground(1001, notification)
+            }
+        } catch (e: Exception) {
+            // Se der erro de permissão no Samsung, ele cai aqui
+            e.printStackTrace()
         }
+
 
         // O resto do seu código (shakeDetector...) está PERFEITO!
         shakeDetector = ShakeDetector {
