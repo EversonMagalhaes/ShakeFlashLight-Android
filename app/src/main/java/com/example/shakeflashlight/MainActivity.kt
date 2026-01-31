@@ -4,65 +4,66 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+//import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+//import androidx.constraintlayout.widget.ConstraintLayout
 
 class MainActivity : AppCompatActivity() {
+
+    private var isFlashOn = false
+    private var lastClickTime: Long = 0
+    private val SHAKE_DELAY = 1000 // 1 segundo de intervalo
 
     private val cameraManager by lazy {
         getSystemService(CAMERA_SERVICE) as CameraManager
     }
 
-    // Gerenciador de Sensores do Android
     private val sensorManager by lazy {
         getSystemService(SENSOR_SERVICE) as SensorManager
     }
 
     private var cameraId: String? = null
-    private var isFlashOn = false // Estado da nossa lanterna
     private lateinit var shakeDetector: ShakeDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Log.d("SHAKE_APP", "APP INICIOU E LOG ESTA FUNCIONANDO")
-
         try {
             cameraId = cameraManager.cameraIdList[0]
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SHAKE_APP", "Erro ao acessar câmera: ${e.message}")
         }
 
-        // Inicializamos o detector e passamos o que ele deve fazer (o onShake)
+        // Inicializamos o detector com a lógica de tempo (Debounce)
         shakeDetector = ShakeDetector {
-            toggleFlashlight()
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime > SHAKE_DELAY) {
+                lastClickTime = currentTime
+                isFlashOn = !isFlashOn
+                toggleFlash(isFlashOn)
+            }
         }
     }
 
-    private fun toggleFlashlight() {
-        // Usando Log.d (Tag, Mensagem)
-        Log.d("SHAKE_APP", "Chacoalhada detectada!")
-
+    private fun toggleFlash(status: Boolean) {
         try {
             cameraId?.let { id ->
-                isFlashOn = !isFlashOn
-                cameraManager.setTorchMode(id, isFlashOn)
-                Log.d("SHAKE_APP", "Lanterna status: $isFlashOn")
+                cameraManager.setTorchMode(id, status)
+                Log.d("SHAKE_APP", "Lanterna status: $status")
             }
         } catch (e: Exception) {
             Log.e("SHAKE_APP", "Erro: ${e.message}")
         }
     }
 
-    // Ativamos o sensor quando o app ganha foco
     override fun onResume() {
         super.onResume()
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorManager.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
     }
 
-    // Desativamos o sensor quando o app vai para o fundo (economiza bateria)
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(shakeDetector)

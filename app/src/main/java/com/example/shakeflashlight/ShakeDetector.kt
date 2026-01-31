@@ -4,46 +4,25 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import kotlin.math.sqrt
 
 class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
 
-    // Limiar de aceleração para considerar uma chacoalhada (ajustável)
-    private val threshold = 50.0f
-
-//    override fun onSensorChanged(event: SensorEvent?) {
-//        if (event != null) {
-//            val x = event.values[0]
-//            val y = event.values[1]
-//            val z = event.values[2]
-//
-//            // Cálculo da aceleração total (vetor resultante)
-//            // Fórmula: sqrt(x² + y² + z²) - gravidade
-//            val acceleration = sqrt((x * x + y * y + z * z).toDouble()).toFloat()
-//            val gravity = SensorManager.GRAVITY_EARTH
-//            val actualAcceleration = acceleration - gravity
-//
-//            if (actualAcceleration > threshold) {
-//                onShake() // Dispara a função que passamos pelo construtor
-//            }
-//        }
-//    }
+    // Mantendo o seu valor de 50.0f
+    private val threshold = 70.0f
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (event != null) {
+        // 1. Verificamos se o evento não é nulo e se é do acelerômetro
+        if (event != null && event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+
+            // 2. Pegamos apenas o valor do eixo X (movimento lateral)
             val x = event.values[0]
-            val y = event.values[1]
-            val z = event.values[2]
 
-            // Calculamos a aceleração total
-            val acceleration = sqrt((x * x + y * y + z * z).toDouble()).toFloat()
-            val gravity = SensorManager.GRAVITY_EARTH
+            // 3. Usamos o valor absoluto (Math.abs) para ignorar se é esquerda ou direita
+            // Usamos o valor bruto (m/s²) para manter a compatibilidade com seu threshold de 50
+            val actualAccelerationX = Math.abs(x)
 
-            // Usamos o valor absoluto da diferença para captar qualquer solavanco
-            val actualAcceleration = Math.abs(acceleration - gravity)
-
-            // Se o threshold for 5.0f, ele vai disparar bem fácil no emulador
-            if (actualAcceleration > threshold) {
+            // 4. Se a força apenas no X for maior que 50, dispara
+            if (actualAccelerationX > threshold) {
                 onShake()
             }
         }
