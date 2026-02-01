@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">ShakeFlashlight</string>
+    <string name="app_name">Shake Flash Light</string>
+    <string name="ilustra_o_de_balan_ar_o_celular">Ilustração de balançar o celular</string>
+    <string name="ilustra_o_de_balan_ar_o_celular2">Ilustração de balançar o celular</string>
+    <string name="ative_para_acender_a_lanterna_ao_chacoalhar_o_smartphone_de_um_lado_para_o_outro">Ative para acender a lanterna ao chacoalhar o smartphone de um lado para o outro.</string>
+    <string name="ativar_lanterna_r_pida">Ativar Lanterna Rápida</string>
+    <string name="sensibilidade_60_0">Sensibilidade: 60.0</string>
+    <string name="shake_flash_light">Shake Flash Light</string>
 </resources>

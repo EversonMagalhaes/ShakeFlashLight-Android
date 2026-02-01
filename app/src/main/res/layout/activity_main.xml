@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -11,16 +12,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Shake Flash Light"
-        android:textSize="28sp"
-        android:textStyle="bold"
+        android:layout_marginTop="60dp"
+        android:text="@string/shake_flash_light"
         android:textColor="#333333"
-        android:layout_marginTop="60dp"/>
+        android:textSize="28sp"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ative para acender a lanterna ao chacoalhar o smartphone de um lado para o outro."
+        android:text="@string/ative_para_acender_a_lanterna_ao_chacoalhar_o_smartphone_de_um_lado_para_o_outro"
         android:textSize="16sp"
         android:textColor="#666666"
         android:textAlignment="center"
@@ -33,15 +34,16 @@
         android:layout_marginTop="30dp"
         android:minWidth="48dp"
         android:minHeight="48dp"
-        android:text="Ativar Lanterna Rápida "
-        android:textSize="18sp" />
+        android:text="@string/ativar_lanterna_r_pida"
+        android:textSize="18sp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <TextView
         android:id="@+id/labelSensitivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="Sensibilidade: 60.0"
+        android:text="@string/sensibilidade_60_0"
         android:textColor="#333333" />
 
     <SeekBar
@@ -58,12 +60,22 @@
         android:layout_marginTop="20dp">
 
         <ImageView
-            android:id="@+id/animationPlaceholder"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:id="@+id/imageShakeIllustration"
+            android:layout_width="380dp"
+            android:layout_height="370dp"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_rotate"
-            android:alpha="0.3" />
+            android:layout_marginTop="0dp"
+            android:contentDescription="@string/ilustra_o_de_balan_ar_o_celular2"
+            android:src="@mipmap/ic_launcher_foreground" />
+
     </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.5"
+        android:text="Desenvolvido por [Éverson Coelho Magalhães]"
+        android:textSize="12sp" />
 
 </LinearLayout>
