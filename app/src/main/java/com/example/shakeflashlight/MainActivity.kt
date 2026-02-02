@@ -113,7 +113,8 @@ class MainActivity : AppCompatActivity() {
 
                 // 1️⃣ Movimento esquerda / direita
                 imgShakeDemo.animate()
-                    .translationX(40f * direction)
+                    .translationX(60f * direction)
+                    .translationY(-30f * direction)
                     .setDuration(150)
                     .withEndAction {
                         direction *= -1
