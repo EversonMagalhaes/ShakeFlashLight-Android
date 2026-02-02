@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
@@ -95,5 +97,49 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+
+
+// Alterna lanterna visual ligada/desligada
+        val imgShakeDemo = findViewById<ImageView>(R.id.imageShakeIllustration)
+
+        val handler = android.os.Handler(mainLooper)
+
+        var flashOn = false          // false = shake_off | true = shake_on
+        var direction = 1            // esquerda / direita
+        var moveCount = 0            // conta os movimentos
+
+        handler.post(object : Runnable {
+            override fun run() {
+
+                // 1️⃣ Movimento esquerda / direita
+                imgShakeDemo.animate()
+                    .translationX(40f * direction)
+                    .setDuration(150)
+                    .withEndAction {
+                        direction *= -1
+                    }
+                    .start()
+
+                moveCount++
+
+                // 2️⃣ Após 2 movimentos, troca imagem e pausa
+                if (moveCount >= 4) {
+                    moveCount = 0
+                    flashOn = !flashOn
+
+                    imgShakeDemo.setImageResource(
+                        if (flashOn) R.drawable.shake_on else R.drawable.shake_off
+                    )
+
+                    // Pausa maior ao trocar imagem (2,5s)
+                    handler.postDelayed(this, 2500)
+                } else {
+                    // Pausa curta entre movimentos
+                    handler.postDelayed(this, 300)
+                }
+            }
+        })
+
+
     }
 }
