@@ -64,7 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:max="100"
+        android:max="40"
         android:progress="20" />
 
     <!-- IMAGEM -->
@@ -72,16 +72,16 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="15dp">
 
         <ImageView
             android:id="@+id/imageShakeIllustration"
             android:layout_width="250dp"
-            android:layout_height="260dp"
-            android:src="@drawable/shake_off"
+            android:layout_height="250dp"
             android:layout_gravity="center"
             android:scaleType="fitCenter"
-            android:translationY="10dp"/>
+            android:src="@drawable/shake_off"
+            android:translationY="0dp" />
 
     </FrameLayout>
 

@@ -45,7 +45,14 @@ class MainActivity : AppCompatActivity() {
         val switchService = findViewById<Switch>(R.id.switchService)
         val seekBar = findViewById<SeekBar>(R.id.seekBarSensitivity)
         val labelSensitivity = findViewById<TextView>(R.id.labelSensitivity)
-        val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+//        val sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        val safeContext = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            createDeviceProtectedStorageContext()
+        } else {
+            this
+        }
+        val sharedPrefs = safeContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         // 1. CARREGAR PREFERÊNCIAS (Sensibilidade e Estado do Switch)
         val savedProgress = sharedPrefs.getInt(KEY_SENSITIVITY, 20)
@@ -106,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         val handler = android.os.Handler(mainLooper)
 
         var flashOn = false          // false = shake_off | true = shake_on
-        var direction = 2           // esquerda / direita
+        var direction = 1.5           // esquerda / direita
         var moveCount = 0            // conta os movimentos
 
         handler.post(object : Runnable {
@@ -114,7 +121,7 @@ class MainActivity : AppCompatActivity() {
 
                 // 1️⃣ Movimento esquerda / direita
                 imgShakeDemo.animate()
-                    .translationX((80f * direction).toFloat())
+                    .translationX((70f * direction).toFloat())
                     .translationY((-20f * direction).toFloat())
                     .setDuration(150)
                     .withEndAction {

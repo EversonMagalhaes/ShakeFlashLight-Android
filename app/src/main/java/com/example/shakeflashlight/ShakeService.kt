@@ -115,6 +115,7 @@ class ShakeService : Service() {
             .setPriority(NotificationCompat.PRIORITY_LOW) // Mude para LOW para ser discreto ao atualizar
             .setOngoing(true)
             .setOnlyAlertOnce(true) // A MÁGICA ESTÁ AQUI: Só alerta na primeira vez!
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
 
         try {
