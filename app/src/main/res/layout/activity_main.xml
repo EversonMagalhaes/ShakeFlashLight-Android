@@ -10,17 +10,18 @@
     android:gravity="center_horizontal">
 
     <!-- TÍTULO -->
+
+    <!-- DESCRIÇÃO -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="30dp"
+        android:alpha="0.95"
         android:text="@string/shake_flash_light"
         android:textColor="#FFFFFF"
         android:textSize="28sp"
-        android:textStyle="bold"
-        android:alpha="0.95" />
+        android:textStyle="bold" />
 
-    <!-- DESCRIÇÃO -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,6 +33,11 @@
         android:alpha="0.9"/>
 
     <!-- SWITCH -->
+
+    <!-- LABEL SENSIBILIDADE -->
+
+    <!-- SEEKBAR -->
+
     <Switch
         android:id="@+id/switchService"
         android:layout_width="wrap_content"
@@ -40,21 +46,19 @@
         android:minWidth="48dp"
         android:minHeight="48dp"
         android:text="@string/ativar_lanterna_r_pida"
-        android:textSize="18sp"
         android:textColor="#FFFFFF"
+        android:textSize="18sp"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    <!-- LABEL SENSIBILIDADE -->
     <TextView
         android:id="@+id/labelSensitivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
+        android:alpha="0.9"
         android:text="@string/sensibilidade_60_0"
-        android:textColor="#E1F5FE"
-        android:alpha="0.9" />
+        android:textColor="#E1F5FE" />
 
-    <!-- SEEKBAR -->
     <SeekBar
         android:id="@+id/seekBarSensitivity"
         android:layout_width="match_parent"
@@ -72,7 +76,7 @@
 
         <ImageView
             android:id="@+id/imageShakeIllustration"
-            android:layout_width="260dp"
+            android:layout_width="250dp"
             android:layout_height="260dp"
             android:src="@drawable/shake_off"
             android:layout_gravity="center"

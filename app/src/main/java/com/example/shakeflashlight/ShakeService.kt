@@ -23,6 +23,8 @@ class ShakeService : Service() {
     private var lastClickTime: Long = 0
     private val SHAKE_DELAY = 500
 
+    private var isDetectorRegistered = false
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -45,24 +47,6 @@ class ShakeService : Service() {
 
         }
     }
-//    private fun shakeVibrate() {
-//        val pattern = longArrayOf(0, 100, 50, 200) // Espera 0ms, vibra 100ms, para 50ms, vibra 100ms
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-//            val vibrator = vibratorManager.defaultVibrator
-//            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1)) // -1 significa "não repetir"
-//        } else {
-//            @Suppress("DEPRECATION")
-//            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
-//            } else {
-//                // Para celulares muito antigos
-//                vibrator.vibrate(pattern, -1)
-//            }
-//        }
-//    }
 
     private fun shakeVibrate() {
         val pattern = longArrayOf(0, 100, 50, 200)
@@ -103,23 +87,26 @@ class ShakeService : Service() {
         } catch (e: Exception) {}
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+
+        // Criamos o detector UMA VEZ aqui
+        shakeDetector = ShakeDetector {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime > SHAKE_DELAY) {
+                lastClickTime = currentTime
+                isFlashOn = !isFlashOn
+                toggleFlash(isFlashOn)
+                shakeVibrate()
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val threshold = intent?.getFloatExtra("threshold", 60.0f) ?: 60.0f
 
+        if (::shakeDetector.isInitialized) {
+            shakeDetector.threshold = threshold
+        }
         createNotificationChannel()
-
-//        val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
-//            .setSmallIcon(R.mipmap.ic_launcher)
-//            .setContentTitle("Lanterna Rápida Ativa")
-//            .setContentText("O sensor está monitorando movimentos")
-//            .setPriority(NotificationCompat.PRIORITY_HIGH) // Alta prioridade
-//            .setOngoing(true)
-//            .setSilent(false) // Garante que não seja uma notificação "muda"
-//            // Esta linha abaixo é crucial para Android 12+ (Samsung)
-//            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-//            .build()
 
         val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -142,17 +129,14 @@ class ShakeService : Service() {
         }
 
 
-        // O resto do seu código (shakeDetector...) está PERFEITO!
-        shakeDetector = ShakeDetector {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastClickTime > SHAKE_DELAY) {
-                lastClickTime = currentTime
-                isFlashOn = !isFlashOn
-                toggleFlash(isFlashOn)
-                shakeVibrate()
-            }
-        }
         shakeDetector.threshold = threshold
+
+        // Registra o sensor apenas se ainda não estiver registrado
+        if (!isDetectorRegistered) {
+            val accelerometer = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
+            sensorManager.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
+            isDetectorRegistered = true
+        }
 
         val accelerometer = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
         sensorManager.registerListener(shakeDetector, accelerometer, SensorManager.SENSOR_DELAY_UI)
@@ -173,7 +157,10 @@ class ShakeService : Service() {
         }
         sensorManager.unregisterListener(shakeDetector)
         toggleFlash(false)
-
+        // Remove o listener para parar de gastar bateria e permitir reset
+        sensorManager.unregisterListener(shakeDetector)
+        isDetectorRegistered = false
+        toggleFlash(false)
         // 2. POR ÚLTIMO e UMA ÚNICA VEZ chamamos o super
         super.onDestroy()
     }

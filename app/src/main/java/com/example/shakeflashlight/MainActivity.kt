@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
             serviceIntent.putExtra("threshold", 40.0f + seekBar.progress)
 
             if (isChecked) {
+                serviceIntent.putExtra("threshold", 40.0f + seekBar.progress)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(serviceIntent)
                 } else {
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         val handler = android.os.Handler(mainLooper)
 
         var flashOn = false          // false = shake_off | true = shake_on
-        var direction = 1            // esquerda / direita
+        var direction = 2           // esquerda / direita
         var moveCount = 0            // conta os movimentos
 
         handler.post(object : Runnable {
@@ -113,8 +114,8 @@ class MainActivity : AppCompatActivity() {
 
                 // 1️⃣ Movimento esquerda / direita
                 imgShakeDemo.animate()
-                    .translationX(60f * direction)
-                    .translationY(-30f * direction)
+                    .translationX((80f * direction).toFloat())
+                    .translationY((-20f * direction).toFloat())
                     .setDuration(150)
                     .withEndAction {
                         direction *= -1

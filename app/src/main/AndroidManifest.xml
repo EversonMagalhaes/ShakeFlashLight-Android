@@ -3,15 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
-
     <uses-feature android:name="android.hardware.camera" />
-<!--    <uses-feature android:name="android.hardware.camera.flash" />-->
     <uses-feature android:name="android.hardware.camera.flash" android:required="true" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
 
@@ -38,6 +37,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!--        Se der erro em versões posteriores do android use esta versão do receiver-->
+        <!--        <receiver-->
+        <!--            android:name=".BootReceiver"-->
+        <!--            android:enabled="true"-->
+        <!--            android:exported="true"> <intent-filter>-->
+        <!--            <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+        <!--            <action android:name="android.intent.action.QUICKBOOT_POWERON" />-->
+        <!--            <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />-->
+        <!--        </intent-filter>-->
+        <!--        </receiver>-->
 
 
     </application>
