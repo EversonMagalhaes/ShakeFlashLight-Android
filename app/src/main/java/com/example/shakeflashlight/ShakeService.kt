@@ -109,6 +109,15 @@ class ShakeService : Service() {
         }
         createNotificationChannel()
 
+        val notificationIntent = Intent(this, MainActivity::class.java)
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
             .setSmallIcon(R.drawable.ic_flashlight_notif)
             .setColor("#0D47A1".toColorInt()) // Exemplo de cor (Teal escuro)
@@ -118,6 +127,8 @@ class ShakeService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH) // Mude para LOW para ser discreto ao atualizar
             .setOngoing(true)
             .setOnlyAlertOnce(true) // A MÁGICA ESTÁ AQUI: Só alerta na primeira vez!
+            .setContentIntent(pendingIntent) // <--- ESSA LINHA FAZ A MÁGICA
+            .setAutoCancel(false) // Como é um serviço em primeiro plano, o SO gerencia is
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             // Categoria de serviço de sistema ajuda na prioridade de exibição
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
