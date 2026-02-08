@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.core.graphics.toColorInt
 
 class ShakeService : Service() {
 
@@ -109,13 +110,17 @@ class ShakeService : Service() {
         createNotificationChannel()
 
         val notification = NotificationCompat.Builder(this, "SHAKE_FINAL_CHANNEL")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_flashlight_notif)
+            .setColor("#0D47A1".toColorInt()) // Exemplo de cor (Teal escuro)
+            .setColorized(true) // No Android moderno, isso destaca a cor no ícone e botões
             .setContentTitle("Lanterna Rápida Ativa")
             .setContentText("O sensor está monitorando movimentos")
-            .setPriority(NotificationCompat.PRIORITY_LOW) // Mude para LOW para ser discreto ao atualizar
+            .setPriority(NotificationCompat.PRIORITY_HIGH) // Mude para LOW para ser discreto ao atualizar
             .setOngoing(true)
             .setOnlyAlertOnce(true) // A MÁGICA ESTÁ AQUI: Só alerta na primeira vez!
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            // Categoria de serviço de sistema ajuda na prioridade de exibição
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
 
         try {
