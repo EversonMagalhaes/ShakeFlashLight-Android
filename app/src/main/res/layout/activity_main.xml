@@ -71,6 +71,15 @@
                 android:text="@string/sensibilidade_60_0"
                 android:textColor="#E1F5FE" />
 
+<!--            <SeekBar-->
+<!--                android:id="@+id/seekBarSensitivity"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="12dp"-->
+<!--                android:progressTint="#BBDEFB"-->
+<!--                android:thumbTint="#FFFFFF"-->
+<!--                android:max="38"-->
+<!--                android:progress="20" />-->
             <SeekBar
                 android:id="@+id/seekBarSensitivity"
                 android:layout_width="match_parent"
@@ -78,8 +87,9 @@
                 android:layout_marginTop="12dp"
                 android:progressTint="#BBDEFB"
                 android:thumbTint="#FFFFFF"
-                android:max="38"
-                android:progress="20" />
+                android:max="3"
+                android:progress="1" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

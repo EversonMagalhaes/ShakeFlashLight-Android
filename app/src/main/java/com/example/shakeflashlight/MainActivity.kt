@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.Switch
@@ -54,13 +53,25 @@ class MainActivity : AppCompatActivity() {
         }
         val sharedPrefs = safeContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-        // 1. CARREGAR PREFERÊNCIAS (Sensibilidade e Estado do Switch)
-        val savedProgress = sharedPrefs.getInt(KEY_SENSITIVITY, 20)
+//        // 1. CARREGAR PREFERÊNCIAS (Sensibilidade e Estado do Switch)
+//        val savedProgress = sharedPrefs.getInt(KEY_SENSITIVITY, 20)
+//        val isServiceActive = sharedPrefs.getBoolean(KEY_SERVICE_ACTIVE, false)
+//
+//        seekBar.progress = savedProgress
+//        val currentThreshold = 40.0f + savedProgress
+//        labelSensitivity.text = "Sensibilidade: $currentThreshold"
+        // 1. CARREGAR PREFERÊNCIAS
+        val savedProgress = sharedPrefs.getInt(KEY_SENSITIVITY, 1)
         val isServiceActive = sharedPrefs.getBoolean(KEY_SERVICE_ACTIVE, false)
 
+        // Aplica aos componentes
         seekBar.progress = savedProgress
-        val currentThreshold = 40.0f + savedProgress
-        labelSensitivity.text = "Sensibilidade: $currentThreshold"
+        switchService.isChecked = isServiceActive
+
+        // Traduz e exibe o texto correto
+        val (label, _) = getLevelInfo(savedProgress)
+        labelSensitivity.text = "Chacoalho: $label"
+
 
         // Aqui está o pulo do gato: define o estado visual do botão
         switchService.isChecked = isServiceActive
@@ -71,10 +82,14 @@ class MainActivity : AppCompatActivity() {
             sharedPrefs.edit().putBoolean(KEY_SERVICE_ACTIVE, isChecked).apply()
 
             val serviceIntent = Intent(this, ShakeService::class.java)
-            serviceIntent.putExtra("threshold", 40.0f + seekBar.progress)
+
+            // 2. BUSCA O VALOR DO SENSOR (Aqui usamos a função do Passo 1)
+            val (_, threshold) = getLevelInfo(seekBar.progress)
+            serviceIntent.putExtra("threshold", threshold)
 
             if (isChecked) {
-                serviceIntent.putExtra("threshold", 40.0f + seekBar.progress)
+                // 2. BUSCA O VALOR DO SENSOR (Aqui usamos a função do Passo 1)
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(serviceIntent)
                 } else {
@@ -86,21 +101,43 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 3. LÓGICA DO SEEKBAR
+//        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                labelSensitivity.text = "Sensibilidade: ${40.0f + progress}"
+//            }
+//
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+//
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+//                val progress = seekBar?.progress ?: 20
+//                sharedPrefs.edit().putInt(KEY_SENSITIVITY, progress).apply()
+//
+//                // Se estiver ligado, reinicia o serviço para atualizar a sensibilidade
+//                if (switchService.isChecked) {
+//                    val serviceIntent = Intent(this@MainActivity, ShakeService::class.java)
+//                    serviceIntent.putExtra("threshold", 40.0f + progress)
+//                    startService(serviceIntent)
+//                }
+//            }
+//        })
+
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                labelSensitivity.text = "Sensibilidade: ${40.0f + progress}"
+                val (label, _) = getLevelInfo(progress)
+                labelSensitivity.text = "Chacoalho: $label"
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                val progress = seekBar?.progress ?: 20
+                val progress = seekBar?.progress ?: 1
+                val (_, threshold) = getLevelInfo(progress)
+
                 sharedPrefs.edit().putInt(KEY_SENSITIVITY, progress).apply()
 
-                // Se estiver ligado, reinicia o serviço para atualizar a sensibilidade
                 if (switchService.isChecked) {
                     val serviceIntent = Intent(this@MainActivity, ShakeService::class.java)
-                    serviceIntent.putExtra("threshold", 40.0f + progress)
+                    serviceIntent.putExtra("threshold", threshold)
                     startService(serviceIntent)
                 }
             }
@@ -150,5 +187,14 @@ class MainActivity : AppCompatActivity() {
         })
 
 
+    }
+    private fun getLevelInfo(progress: Int): Pair<String, Float> {
+        return when (progress) {
+            0 -> "Sensível" to 45.0f
+            1 -> "Padrão"   to 55.0f
+            2 -> "Firme"    to 65.0f
+            3 -> "Intenso"  to 78.0f
+            else -> "Padrão" to 55.0f
+        }
     }
 }
