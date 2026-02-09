@@ -22,4 +22,4 @@ O grande diferencial deste repositório é a sua **documentação histórica**. 
 - **Linguagem**: Kotlin
 - **Android SDK**: Sensores (Acelerômetro), Camera2 API (Flashlight).
 - **Componentes**: `Service`, `BroadcastReceiver`, `NotificationManager`.
-- **UI/UX**: Material Design, Custom SeekBars e Animações de
+- **UI/UX**: Material Design, Custom SeekBars e Animações de estado.
