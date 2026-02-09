@@ -49,7 +49,7 @@ class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
                     movementCount++
                     lastMovementTime = now
 
-                    // Só chama o onShake() após 3 movimentos válidos
+                    // Só chama o onShake() após 2 movimentos válidos
                     if (movementCount >= 2) {
                         onShake()
                         movementCount = 0 // Reseta para a próxima vez
